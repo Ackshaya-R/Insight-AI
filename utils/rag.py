@@ -1,6 +1,13 @@
 from utils.embeddings import EmbeddingModel
 from utils.vector_store import VectorStore
 from utils.llm import GeminiLLM
+import streamlit as st
+
+
+@st.cache_resource
+def load_rag():
+
+    return RAGPipeline()
 
 
 class RAGPipeline:
@@ -13,25 +20,11 @@ class RAGPipeline:
 
         self.llm = GeminiLLM()
 
-    def ask(
-        self,
-        question,
-        selected_documents=None
-    ):
+    def ask(self, question, selected_documents=None):
 
-        # -----------------------------
-        # Create Query Embedding
-        # -----------------------------
-
-        query_embedding = (
-            self.embedding_model.create_query_embedding(
-                question
-            )
+        query_embedding = self.embedding_model.create_query_embedding(
+            question
         )
-
-        # -----------------------------
-        # Search ChromaDB
-        # -----------------------------
 
         results = self.vector_store.search(
             query_embedding=query_embedding,
@@ -39,37 +32,17 @@ class RAGPipeline:
             n_results=6
         )
 
-        # -----------------------------
-        # No Documents Found
-        # -----------------------------
-
         if (
             not results
             or len(results["documents"]) == 0
             or len(results["documents"][0]) == 0
         ):
 
-            return (
-                "I couldn't find the answer in the selected document(s)."
-            )
+            return "I couldn't find the answer in the uploaded documents."
 
-        # -----------------------------
-        # Merge Retrieved Chunks
-        # -----------------------------
+        context = "\n\n".join(results["documents"][0])
 
-        documents = results["documents"][0]
-
-        context = "\n\n".join(
-            documents
-        )
-
-        # -----------------------------
-        # Generate Gemini Response
-        # -----------------------------
-
-        answer = self.llm.generate_answer(
+        return self.llm.generate_answer(
             context=context,
             question=question
         )
-
-        return answer
