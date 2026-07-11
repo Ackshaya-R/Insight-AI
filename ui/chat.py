@@ -1,7 +1,7 @@
 import time
 import streamlit as st
 
-from utils.rag import RAGPipeline
+from utils.rag import load_rag
 from utils.vector_store import VectorStore
 from database.chat_history import ChatHistory
 
@@ -164,7 +164,7 @@ def show_chat():
 
                 try:
 
-                    rag = RAGPipeline()
+                    rag = load_rag()
 
                     answer = rag.ask(
                         question,
