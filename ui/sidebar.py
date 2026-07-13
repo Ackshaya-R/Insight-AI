@@ -1,5 +1,4 @@
 import streamlit as st
-
 from database.chat_history import ChatHistory
 
 
@@ -10,8 +9,20 @@ def show_sidebar():
     with st.sidebar:
 
         st.title("🤖 InsightAI")
-
         st.caption("AI Document Assistant")
+
+        st.markdown("---")
+
+        # ===========================
+        # Theme Toggle (NEW)
+        # ===========================
+        if "dark_mode" not in st.session_state:
+            st.session_state.dark_mode = True
+
+        st.session_state.dark_mode = st.toggle(
+            "🌙 Dark Mode",
+            value=st.session_state.dark_mode
+        )
 
         st.markdown("---")
 
@@ -20,9 +31,7 @@ def show_sidebar():
             "➕ New Chat",
             use_container_width=True
         ):
-
             st.session_state.messages = []
-
             st.rerun()
 
         st.markdown("---")
@@ -32,22 +41,14 @@ def show_sidebar():
         chats = history.get_recent_questions(limit=20)
 
         if len(chats) == 0:
-
             st.info("No chats yet.")
-
         else:
-
             for chat in chats:
 
                 chat_id = chat[0]
-
                 question = chat[1]
 
-                created = chat[2]
-
-                # Show only first 35 characters
                 if len(question) > 35:
-
                     question = question[:35] + "..."
 
                 st.button(
@@ -62,11 +63,8 @@ def show_sidebar():
             "🗑 Clear History",
             use_container_width=True
         ):
-
             history.clear_history()
-
             st.success("History Cleared")
-
             st.rerun()
 
         st.markdown("---")
